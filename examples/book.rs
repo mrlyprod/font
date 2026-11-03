@@ -1,5 +1,3 @@
-//! Prints the font book: every glyph's rows and pen path as one JSON object, the table the site draws its letters from.
-
 use serde_json::{Map, Value, json};
 
 fn main() {

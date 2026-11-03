@@ -1,16 +1,15 @@
-mrly-font; a MrlyMath crate: the alphabet, a stroked pixel font of 108 characters, painted whole or written stroke by stroke
+# Think differently
 
-# FONT
+## Here's to the crazy ones.
 
-- Its bindings sit beside it, written by `mrly-bridge` from `bridge.toml` and `src/`: `js/` (`@mrlyprod/font`), `py/` (`mrly.font`) and `cli/` (`mrly-font`); `manifest.json` lists every crossing and `.gitattributes` every generated file.
-- Builds on nothing; `scripts/bridge.sh` rewrites the bindings.
-- `scripts/check.sh` is the one gate: fmt, clippy, test, doc, bridge check, ruff, wasm, the leaves' tests, leak.
-- A fresh clone runs `scripts/wasm.sh` once before any host builds: it writes `js/pkg/`, which is not committed.
-- Until the crates are published, clone the fleet beside this repo: `scripts/bridge.sh` runs the sibling `../bridge`, and a `.cargo/config.toml` with `[patch.crates-io]` rows points every `mrly-*` dependency at its sibling folder.
-- Docs: [docs.rs/mrly-font](https://docs.rs/mrly-font).
+1. The misfits
+2. The rebels
+3. The troublemakers
 
-```rust
-assert_eq!(mrly_font::supported().len(), 108);
-assert_eq!(mrly_font::glyph('a').unwrap().rows[0], "01110");
-assert_eq!(mrly_font::raster("42").len(), 5);
-```
+The round pegs in the square holes. The ones who see things differently. They're not fond of rules. And they have no respect for the status quo. You can quote them, disagree with them, glorify or vilify them. About the only thing you can't do is ignore them. Because they change things.
+
+***They push the human race forward***.
+
+And while some may see them as the crazy ones, we see genius. Because the people who are crazy enough to think they can change the world, are the ones who do.
+
+[Think differently]: https://mrly.net

@@ -1,4 +1,3 @@
-/// Returns the character's Unicode name, or a U+ code point label for a character outside the font.
 pub fn name_of(c: char) -> String {
     match c {
         '\u{0041}' => "LATIN CAPITAL LETTER A".to_string(),

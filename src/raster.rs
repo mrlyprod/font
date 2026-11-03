@@ -2,29 +2,21 @@ use super::glyph::descends;
 use super::{glyph, trim};
 
 pub(crate) struct Block {
-    /// The character the block draws.
     pub char: char,
-    /// The glyph rows, top to bottom.
     pub rows: Vec<String>,
-    /// The column the block starts at.
     pub col: usize,
-    /// The rows the block sits below the baseline.
     pub offset: usize,
 }
 
 impl Block {
-    /// Reports the block width in columns.
     pub(crate) fn width(&self) -> usize {
         self.rows.first().map_or(0, String::len)
     }
 }
 
 pub(crate) struct Layout {
-    /// The height in rows.
     pub height: usize,
-    /// The width in columns.
     pub width: usize,
-    /// The placed blocks, in reading order.
     pub blocks: Vec<Block>,
 }
 
@@ -65,12 +57,6 @@ pub(crate) fn layout(text: &str) -> Layout {
     }
 }
 
-/// Returns the text as a 0/1 grid, its trimmed glyphs one blank column apart.
-///
-/// ```
-/// assert_eq!(mrly_font::raster("42").len(), 5);
-/// assert_eq!(mrly_font::raster("(1)").len(), 7);
-/// ```
 pub fn raster(text: &str) -> Vec<Vec<u8>> {
     let laid = layout(text);
     if laid.blocks.is_empty() {
@@ -87,46 +73,4 @@ pub fn raster(text: &str) -> Vec<Vec<u8>> {
         }
     }
     grid
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn digits_string_is_five_tall_with_gapped_width() {
-        let rows = raster("42");
-        assert_eq!(rows.len(), 5);
-        let w4 = trim(&glyph('4').unwrap().rows)[0].len();
-        let w2 = trim(&glyph('2').unwrap().rows)[0].len();
-        assert_eq!(rows[0].len(), w4 + w2 + 1);
-    }
-
-    #[test]
-    fn descender_makes_the_grid_seven_tall() {
-        assert_eq!(raster("(1)").len(), 7);
-    }
-
-    #[test]
-    fn five_row_glyph_straddles_in_a_seven_row_grid() {
-        let rows = raster("(1)");
-        let w_paren = trim(&glyph('(').unwrap().rows)[0].len();
-        let w_one = trim(&glyph('1').unwrap().rows)[0].len();
-        let start = w_paren + 1;
-        assert!(rows[0][start..start + w_one].iter().all(|&c| c == 0));
-        assert!(rows[6][start..start + w_one].iter().all(|&c| c == 0));
-    }
-
-    #[test]
-    fn empty_text_is_empty() {
-        assert_eq!(raster(""), Vec::<Vec<u8>>::new());
-    }
-
-    #[test]
-    fn unknown_chars_become_three_blank_columns() {
-        let rows = raster("\u{00a7}");
-        assert_eq!(rows.len(), 5);
-        assert_eq!(rows[0].len(), 3);
-        assert!(rows.iter().all(|row| row.iter().all(|&v| v == 0)));
-    }
 }

@@ -1,4 +1,3 @@
-/// The twenty-six uppercase bitmaps, five rows of five.
 #[rustfmt::skip]
 pub(crate) const UPPERS: &[(char, &[&str])] = &[
     ('A', &[
@@ -185,7 +184,6 @@ pub(crate) const UPPERS: &[(char, &[&str])] = &[
     ]),
 ];
 
-/// The ten digit bitmaps, five rows of five.
 #[rustfmt::skip]
 pub(crate) const DIGITS: &[(char, &[&str])] = &[
     ('0', &[
@@ -260,7 +258,6 @@ pub(crate) const DIGITS: &[(char, &[&str])] = &[
     ]),
 ];
 
-/// The forty-two punctuation, symbol and arrow bitmaps.
 #[rustfmt::skip]
 pub(crate) const EXTRAS: &[(char, &[&str])] = &[
     (' ', &[
@@ -571,7 +568,6 @@ pub(crate) const EXTRAS: &[(char, &[&str])] = &[
     ]),
 ];
 
-/// The four seven-row bitmaps: dollar, at, copyright and registered.
 #[rustfmt::skip]
 pub(crate) const SPECIALS: &[(char, &[&str])] = &[
     ('$', &[

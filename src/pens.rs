@@ -1,14 +1,5 @@
-/// A glyph's pen: its character and its strokes, one string per stroke, cells as row-col tokens.
-///
-/// - A token is one row digit then one column digit over the trimmed bitmap; rows and columns never pass 6.
-/// - One stroke per string, cells in drawing order, each 4-adjacent to the one before it.
-/// - Long strokes: start where a hand starts the shape and lift only where a hand lifts.
-/// - The tables follow `bitmaps.rs` order: UPPERS, LOWERS, DIGITS, EXTRAS, SPECIALS.
-/// - Draft a glyph with `cargo run -p mrly-font --example pen -- X`, then edit it by hand.
-/// - The mechanical rules are tests in `paths.rs`; taste is not, so P keeps its one-cell stroke.
 pub type Pen = (char, &'static [&'static str]);
 
-/// The pens of the twenty-six uppers.
 #[rustfmt::skip]
 pub const UPPERS: &[Pen] = &[
     ('A', &[
@@ -127,7 +118,6 @@ pub const UPPERS: &[Pen] = &[
     ]),
 ];
 
-/// The pens of the twenty-six lowers.
 #[rustfmt::skip]
 pub const LOWERS: &[Pen] = &[
     ('a', &[
@@ -276,7 +266,6 @@ pub const LOWERS: &[Pen] = &[
     ]),
 ];
 
-/// The pens of the ten digits.
 #[rustfmt::skip]
 pub const DIGITS: &[Pen] = &[
     ('0', &[
@@ -316,7 +305,6 @@ pub const DIGITS: &[Pen] = &[
     ]),
 ];
 
-/// The pens of the punctuation, symbol and arrow glyphs.
 #[rustfmt::skip]
 pub const EXTRAS: &[Pen] = &[
     (' ', &[]),
@@ -553,7 +541,6 @@ pub const EXTRAS: &[Pen] = &[
     ]),
 ];
 
-/// The pens of the four seven-row specials.
 #[rustfmt::skip]
 pub const SPECIALS: &[Pen] = &[
     ('$', &[
@@ -576,7 +563,6 @@ pub const SPECIALS: &[Pen] = &[
     ]),
 ];
 
-/// Returns every pen in font order: uppers, lowers, digits, extras, specials.
 pub fn all() -> Vec<(char, Vec<String>)> {
     table()
         .into_iter()

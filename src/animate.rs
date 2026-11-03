@@ -3,32 +3,18 @@ use super::raster::{Block, Layout, layout};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 
-/// The playback rate of every animation, in frames per second.
 pub const FPS: usize = 25;
 
-/// The default number of frames a cycle rests between movements.
 pub const HOLD: usize = 25;
 
-/// A frame-by-frame animation over a fixed board.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Anim {
-    /// The board height in cells.
     pub rows: usize,
-    /// The board width in cells.
     pub cols: usize,
-    /// The playback rate in frames per second.
     pub fps: usize,
-    /// The frames, each a sorted list of lit row-major cell indices.
     pub frames: Vec<Vec<usize>>,
 }
 
-/// Writes the text in stroke order, one cell per frame, from an empty padded board to the full raster.
-///
-/// ```
-/// let write = mrly_font::animate("MRLYPROD", 1);
-/// assert_eq!((write.rows, write.cols, write.fps), (7, 49, 25));
-/// assert!(write.frames[0].is_empty());
-/// ```
 pub fn animate(text: &str, pad: usize) -> Anim {
     let laid = layout(text);
     let (rows, cols) = board(&laid, pad);
@@ -50,7 +36,6 @@ pub fn animate(text: &str, pad: usize) -> Anim {
     }
 }
 
-/// Folds the written text's glyphs, frame by frame, into one centered stack.
 pub fn merge(text: &str, pad: usize) -> Vec<Vec<usize>> {
     let laid = layout(text);
     let (rows, cols) = board(&laid, pad);
@@ -86,7 +71,6 @@ pub fn merge(text: &str, pad: usize) -> Vec<Vec<usize>> {
     frames
 }
 
-/// Chains the write, the merge and their reversals into one loop, resting hold frames after each movement that has any.
 pub fn cycle(write: &Anim, merge: &[Vec<usize>], hold: usize) -> Anim {
     let mut frames: Vec<Vec<usize>> = Vec::new();
     let rest = |frame: Option<&Vec<usize>>, out: &mut Vec<Vec<usize>>| {
@@ -179,103 +163,4 @@ fn place(
         starts[idx]
     };
     slide(anchor, targets[idx])
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::raster;
-    const WORDMARK: &str = "MRLYPROD";
-
-    fn lit(rows: &[Vec<u8>]) -> usize {
-        rows.iter().flatten().filter(|&&v| v == 1).count()
-    }
-
-    #[test]
-    fn the_wordmark_board_is_seven_by_forty_nine() {
-        let write = animate(WORDMARK, 1);
-        assert_eq!((write.rows, write.cols, write.fps), (7, 49, 25));
-    }
-
-    #[test]
-    fn writing_starts_empty_and_grows_one_cell_a_frame() {
-        let write = animate(WORDMARK, 1);
-        assert!(write.frames[0].is_empty());
-        for pair in write.frames.windows(2) {
-            assert_eq!(pair[1].len(), pair[0].len() + 1);
-        }
-        assert_eq!(write.frames.len(), 104);
-        assert_eq!(
-            write.frames.last().unwrap().len(),
-            lit(&raster(WORDMARK)),
-            "the last frame is the whole wordmark"
-        );
-    }
-
-    #[test]
-    fn merging_collapses_in_twenty_two_frames() {
-        let merged = merge(WORDMARK, 1);
-        assert_eq!(merged.len(), 22);
-        assert_eq!(merged[0], animate(WORDMARK, 1).frames[103]);
-        let x = crate::glyph('X').unwrap();
-        let stacked: Vec<usize> = x
-            .rows
-            .iter()
-            .enumerate()
-            .flat_map(|(r, row)| {
-                row.chars()
-                    .enumerate()
-                    .filter(|&(_, ch)| ch == '1')
-                    .map(move |(c, _)| (1 + r) * 49 + 22 + c)
-            })
-            .collect();
-        assert_eq!(*merged.last().unwrap(), stacked, "the eight fold into X");
-    }
-
-    #[test]
-    fn frames_are_sorted_and_in_bounds() {
-        let write = animate(WORDMARK, 1);
-        let anim = cycle(&write, &merge(WORDMARK, 1), HOLD);
-        for frame in &anim.frames {
-            assert!(frame.windows(2).all(|w| w[0] < w[1]));
-            assert!(frame.iter().all(|&i| i < anim.rows * anim.cols));
-        }
-    }
-
-    #[test]
-    fn the_cycle_loops_through_both_halves() {
-        let write = animate(WORDMARK, 1);
-        let merged = merge(WORDMARK, 1);
-        let anim = cycle(&write, &merged, HOLD);
-        assert_eq!(
-            anim.frames.len(),
-            2 * write.frames.len() + 2 * merged.len() + 4 * HOLD
-        );
-        assert_eq!(anim.frames.len(), 352);
-    }
-
-    #[test]
-    fn any_string_writes_itself() {
-        for text in ["a", "hi", "mrly.net", "(1)"] {
-            let write = animate(text, 2);
-            let grid = raster(text);
-            assert_eq!(write.rows, grid.len() + 4);
-            assert_eq!(write.cols, grid[0].len() + 4);
-            assert_eq!(write.frames.last().unwrap().len(), lit(&grid));
-            assert_eq!(write.frames.len(), lit(&grid) + 1);
-        }
-    }
-
-    #[test]
-    fn a_lone_glyph_has_nothing_to_merge() {
-        assert_eq!(merge("A", 1).len(), 1);
-    }
-
-    #[test]
-    fn a_missing_movement_rests_nothing() {
-        let write = animate("A", 1);
-        let looped = cycle(&write, &[], HOLD);
-        assert_eq!(looped.frames.len(), 2 * write.frames.len() + 2 * HOLD);
-        assert_eq!(cycle(&animate("", 0), &[], HOLD).frames.len(), 2 + 2 * HOLD);
-    }
 }

@@ -1,5 +1,3 @@
-//! Prints the pen tables of `pens.rs`, or with one character drafts that glyph's strokes and prints its stroke floor.
-
 use mrly_font::glyph::{digits, extras, lowers, specials, uppers};
 use mrly_font::{Glyph, draft, floor, glyph, strokes, trim};
 
